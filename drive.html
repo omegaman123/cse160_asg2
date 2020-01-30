@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Asg2 - Animal</title>
+
+    <link rel="stylesheet" type="text/css" href="stylesheet.css">
+</head>
+<body onload="main()">
+
+
+<canvas id="canvas" width="500" height="500">
+</canvas><br>
+
+<div class="slidecontainer"> Eye Position (x,y,z)
+  <input type="range" min="-30" max="30" value="30" class="slider" id="myRange">
+  <input type="range" min="-30" max="30" value="30" class="slider" id="myRange1">
+    <input type="range" min="-30" max="30" value="30" class="slider" id="myRange2">
+
+</div>
+
+<script src="src/main.js"></script>
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+    <script src="lib/cuon-matrix.js"></script>
+    <script src="https://twgljs.org/dist/3.x/twgl.min.js"></script>
+</body>
+</html>
