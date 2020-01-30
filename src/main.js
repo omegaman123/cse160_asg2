@@ -52,8 +52,9 @@ function main() {
         return;
     }
 
-    gAnimalGlobalRotation = gl.getUniformLocation(gl.program,'u_GlobalRotation');
-    gAnimalGlobalRotation.setRotate()
+    gAnimalGlobalRotation = new Matrix4();
+    gAnimalGlobalRotation.setRotate(0,0,0,1);
+
     var mvpMatrix = new Matrix4();
 
     //back left leg
@@ -104,17 +105,17 @@ function main() {
                  "angle":90,
                  "scale":{"x":2,"y":5,"z":1.5}});
 
-   drawAnimal(shapes);
+   drawAnimal(shapes,mvpMatrix);
 }
 
 
 function drawAnimal(shapeArr) {
     for (let i = 0; i < shapeArr.length; i++){
-        shapeArr[i].mvpMatrix.setPerspective(90, 1, .1, 100);
-        shapeArr[i].mvpMatrix.lookAt(eye.x, eye.y, eye.z, 0, 0, 0, 0, 1, 0);
+        shapes[i].mvpMatrix.setPerspective(50, canvas.width / canvas.height, 1, 1000);
+        shapes[i].mvpMatrix.lookAt(eye.x, eye.y, eye.z, 0, 0, 0, 0, 1, 0);
         drawCube(shapeArr[i].center,
                  shapeArr[i].u_MvpMatrix,
-                 shapeArr[i].mvpMatrix,
+                 shapes[i].mvpMatrix,
                  shapeArr[i].angle,
                  shapeArr[i].scale);
     }
@@ -130,6 +131,7 @@ function initShaders(gl, vsrc, fsrc) {
 
 function drawCube(center,u_MvpMatrix,mvpMatrix,angle,scale) {
 
+    var u_GlobalRotation = gl.getUniformLocation(gl.program,'u_GlobalRotation');
     // Set clear color and enable hidden surface removal
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
@@ -138,10 +140,10 @@ function drawCube(center,u_MvpMatrix,mvpMatrix,angle,scale) {
     mvpMatrix.scale(scale.x,scale.y,scale.z);
     mvpMatrix.translate(center.x,center.y,center.z);
 
-    console.log(mvpMatrix);
+    // console.log(mvpMatrix);
     // Pass the model view projection matrix to u_MvpMatrix
+    gl.uniformMatrix4fv(u_GlobalRotation, false, gAnimalGlobalRotation.elements);
     gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-
     // Clear color and depth buffe
 
     // Draw the cube
@@ -235,4 +237,10 @@ document.getElementById('myRange2').oninput = function () {
     drawAnimal(shapes)
 };
 
+document.getElementById('gRotation').oninput = function () {
+    gl.clearColor(0,0,0,0);
+    gAnimalGlobalRotation = new Matrix4();
+    gAnimalGlobalRotation.setRotate(document.getElementById('gRotation').value,0,0,1);
+    drawAnimal(shapes)
+};
 
