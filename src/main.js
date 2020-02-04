@@ -68,7 +68,7 @@ function main() {
         "mvpMatrix":mvpMatrix,
         "angle":0,
         "scale":{"x":1,"y":5,"z":2},
-        "anim": {"angle": 0, "x":-1, "y":0, "z":0}});
+        "anim": {"angle": 0, "x":1, "y":0, "z":0}});
 
     //back right leg 1
     shapes.push({"center":{"x":-2,"y":0,"z":4},
@@ -76,7 +76,7 @@ function main() {
         "mvpMatrix":mvpMatrix,
         "angle":0,
         "scale":{"x":1,"y":5,"z":2},
-        "anim": {"angle": 0, "x":1, "y":0, "z":0}});
+        "anim": {"angle": 0, "x":-1, "y":0, "z":0}});
 
 
     //front left leg 2
@@ -121,7 +121,7 @@ function main() {
 
     var tick = function(){
         cAngle = animate(cAngle);
-        shapes[6].anim.angle = cAngle;
+        shapes[6].anim.angle = cAngle/3;
         shapes[0].anim.angle = cAngle;
         shapes[1].anim.angle = cAngle;
         shapes[2].anim.angle = cAngle;
