@@ -126,7 +126,6 @@ function main() {
         shapes[1].anim.angle = cAngle;
         shapes[2].anim.angle = cAngle;
         shapes[3].anim.angle = cAngle;
-        console.log(cAngle);
         drawAnimal(shapes,mvpMatrix);
         requestAnimationFrame(tick,canvas);
     };
