@@ -1,8 +1,13 @@
 let canvas;
 let gl;
 let n;
-let eye = {"x":30,"y":30,"z":7};
+let eye = {"x":30,"y":30,"z":30};
 let gAnimalGlobalRotation;
+let globalAngle = 0;
+let ANGLE_STEP = 45.0;
+let g_ANGLE_STEP = ANGLE_STEP;
+
+
 var VSHADER_SOURCE =
     'attribute vec4 a_Position;\n' +
     'attribute vec4 a_Color;\n' +
@@ -24,7 +29,7 @@ var FSHADER_SOURCE =
     '  gl_FragColor = v_Color;\n' +
     '}\n';
 let shapes = [];
-
+let cAngle = 0;
 
 
 function main() {
@@ -57,59 +62,89 @@ function main() {
 
     var mvpMatrix = new Matrix4();
 
-    //back left leg
-    shapes.push({"center":{"x":0,"y":0,"z":-2},
-                "u_MvpMatrix":u_MvpMatrix,
-                "mvpMatrix":mvpMatrix,
-                "angle":0,
-                "scale":{"x":1,"y":5,"z":2}});
+    //back left leg 0
+    shapes.push({"center":{"x":2,"y":0,"z":4},
+        "u_MvpMatrix":u_MvpMatrix,
+        "mvpMatrix":mvpMatrix,
+        "angle":0,
+        "scale":{"x":1,"y":5,"z":2},
+        "anim": {"angle": 0, "x":-1, "y":0, "z":0}});
 
-    //back right leg
-    shapes.push({"center":{"x":3,"y":0,"z":-2},
-                "u_MvpMatrix":u_MvpMatrix,
-                "mvpMatrix":mvpMatrix,
-                "angle":0,
-                "scale":{"x":1,"y":5,"z":2}});
-
-    //front left leg
-    shapes.push({"center":{"x":0,"y":0,"z":2},
-                 "u_MvpMatrix":u_MvpMatrix,
-                "mvpMatrix":mvpMatrix,
-                "angle":0,
-                "scale":{"x":1,"y":5,"z":2}});
+    //back right leg 1
+    shapes.push({"center":{"x":-2,"y":0,"z":4},
+        "u_MvpMatrix":u_MvpMatrix,
+        "mvpMatrix":mvpMatrix,
+        "angle":0,
+        "scale":{"x":1,"y":5,"z":2},
+        "anim": {"angle": 0, "x":1, "y":0, "z":0}});
 
 
-    //front right leg
-    shapes.push({"center":{"x":3,"y":0,"z":2},
-                "u_MvpMatrix":u_MvpMatrix,
-                "mvpMatrix":mvpMatrix,
-                "angle":0,
-                "scale":{"x":1,"y":5,"z":2}});
+    //front left leg 2
+    shapes.push({"center":{"x":2,"y":0,"z":-4},
+        "u_MvpMatrix":u_MvpMatrix,
+        "mvpMatrix":mvpMatrix,
+        "angle":0,
+        "scale":{"x":1,"y":5,"z":2},
+        "anim": {"angle": 0, "x":-1, "y":0, "z":0}});
 
-    //body
-    shapes.push({"center":{"x":.5,"y":2,"z":0},
-                "u_MvpMatrix":u_MvpMatrix,
-                 "mvpMatrix":mvpMatrix,
-                 "angle":0,
-                 "scale":{"x":3,"y":2,"z":8}});
-    //neck ?
-    shapes.push({"center":{"x":.75,"y":2,"z":1},
-                "u_MvpMatrix":u_MvpMatrix,
-                "mvpMatrix":mvpMatrix,
-                "angle":45,
-                "scale":{"x":2,"y":5,"z":1.5}});
 
-    shapes.push({"center":{"x":.75,"y":2.5,"z":-6},
-                "u_MvpMatrix":u_MvpMatrix,
-                 "mvpMatrix":mvpMatrix,
-                 "angle":90,
-                 "scale":{"x":2,"y":5,"z":1.5}});
+    //front right leg 3
+    shapes.push({"center":{"x":-2,"y":1,"z":-4},
+        "u_MvpMatrix":u_MvpMatrix,
+        "mvpMatrix":mvpMatrix,
+        "angle":0,
+        "scale":{"x":1,"y":5,"z":2},
+        "anim": {"angle": 0, "x":1, "y":0, "z":0}});
 
-   drawAnimal(shapes,mvpMatrix);
+    //body 4
+    shapes.push({"center":{"x":0,"y":5,"z":0},
+        "u_MvpMatrix":u_MvpMatrix,
+        "mvpMatrix":mvpMatrix,
+        "angle":0,
+        "scale":{"x":4,"y":2,"z":8},
+        "anim": {"angle": 0, "x":0, "y":0, "z":0}});
+    //neck ? 5
+    shapes.push({"center":{"x":0,"y":7,"z":7},
+             "u_MvpMatrix":u_MvpMatrix,
+             "mvpMatrix":mvpMatrix,
+             "angle":45,
+             "scale":{"x":2,"y":4,"z":1.5},
+             "anim": {"angle": 0, "x":0, "y":0, "z":0}});
+
+    //head 6
+    shapes.push({"center":{"x":0,"y":10,"z":9},
+             "u_MvpMatrix":u_MvpMatrix,
+              "mvpMatrix":mvpMatrix,
+              "angle":90,
+              "scale":{"x":2.5,"y":4,"z":1.5},
+               "anim": {"angle": 0, "x":0, "y":0, "z":1} });
+
+    var tick = function(){
+        cAngle = animate(cAngle);
+        shapes[6].anim.angle = cAngle;
+        shapes[0].anim.angle = cAngle;
+        shapes[1].anim.angle = cAngle;
+        shapes[2].anim.angle = cAngle;
+        shapes[3].anim.angle = cAngle;
+        console.log(cAngle);
+        drawAnimal(shapes,mvpMatrix);
+        requestAnimationFrame(tick,canvas);
+    };
+
+    tick();
+
 }
 
 
 function drawAnimal(shapeArr) {
+    // Set clear color and enable hidden surface removal
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.enable(gl.DEPTH_TEST);
+
+    // console.log(mvpMatrix);
+    var u_GlobalRotation = gl.getUniformLocation(gl.program,'u_GlobalRotation');
+    gl.uniformMatrix4fv(u_GlobalRotation, false, gAnimalGlobalRotation.elements);
+
     for (let i = 0; i < shapeArr.length; i++){
         shapes[i].mvpMatrix.setPerspective(50, canvas.width / canvas.height, 1, 1000);
         shapes[i].mvpMatrix.lookAt(eye.x, eye.y, eye.z, 0, 0, 0, 0, 1, 0);
@@ -117,9 +152,11 @@ function drawAnimal(shapeArr) {
                  shapeArr[i].u_MvpMatrix,
                  shapes[i].mvpMatrix,
                  shapeArr[i].angle,
-                 shapeArr[i].scale);
+                 shapeArr[i].scale,
+                 shapeArr[i].anim);
     }
 }
+
 function initShaders(gl, vsrc, fsrc) {
     // initShaders is really poorly designed. Most WebGL programs need multiple shader programs
     // but this function assumes there will only ever be one shader program
@@ -129,21 +166,23 @@ function initShaders(gl, vsrc, fsrc) {
     return gl.program;
 }
 
-function drawCube(center,u_MvpMatrix,mvpMatrix,angle,scale) {
+function drawCube(center,u_MvpMatrix,mvpMatrix,angle,scale,anim) {
+    let model = new Matrix4();
+    model.setRotate(globalAngle, 0, 1, 0);
+    model.translate(center.x,center.y,center.z);
+    model.rotate(angle,1,0,0);
+    if (anim.x !== 0 || anim.y !== 0 || anim.z !== 0){
+        model.rotate(anim.angle,anim.x,anim.y,anim.z);
+    }
+    model.scale(scale.x,scale.y,scale.z);
 
-    var u_GlobalRotation = gl.getUniformLocation(gl.program,'u_GlobalRotation');
-    // Set clear color and enable hidden surface removal
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.enable(gl.DEPTH_TEST);
+    let mvp = new Matrix4();
+    mvp.set(mvpMatrix);
+    // mvp.rotate(cAngle,0,1,0);
+    mvp.multiply(model);
 
-    mvpMatrix.rotate(angle,1,0,0);
-    mvpMatrix.scale(scale.x,scale.y,scale.z);
-    mvpMatrix.translate(center.x,center.y,center.z);
-
-    // console.log(mvpMatrix);
     // Pass the model view projection matrix to u_MvpMatrix
-    gl.uniformMatrix4fv(u_GlobalRotation, false, gAnimalGlobalRotation.elements);
-    gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
+    gl.uniformMatrix4fv(u_MvpMatrix, false, mvp.elements);
     // Clear color and depth buffe
 
     // Draw the cube
@@ -151,7 +190,23 @@ function drawCube(center,u_MvpMatrix,mvpMatrix,angle,scale) {
 }
 
 
+var g_last = Date.now();
 
+function animate(angle) {
+    // Calculate the elapsed time
+    var now = Date.now();
+    var elapsed = now - g_last;
+    g_last = now;
+    if (angle > 25) {
+        g_ANGLE_STEP = -ANGLE_STEP;
+    } else if (angle < -25) {
+        g_ANGLE_STEP = ANGLE_STEP;
+    }
+    // Update the current rotation angle (adjusted by the elapsed time)
+    var newAngle = angle + (g_ANGLE_STEP * elapsed) / 1000.0;
+    newAngle%= 360;
+    return newAngle;
+}
 
 function initVertexBuffers(gl) {
     // Create a cube
@@ -239,8 +294,8 @@ document.getElementById('myRange2').oninput = function () {
 
 document.getElementById('gRotation').oninput = function () {
     gl.clearColor(0,0,0,0);
-    gAnimalGlobalRotation = new Matrix4();
-    gAnimalGlobalRotation.setRotate(document.getElementById('gRotation').value,0,0,1);
+    // gAnimalGlobalRotation.setRotate(document.getElementById('gRotation').value,0,1,0);
+    globalAngle = document.getElementById('gRotation').value;
     drawAnimal(shapes)
 };
 
